@@ -1,0 +1,28 @@
+{
+  "name": "blacktools-sdk",
+  "version": "0.1.0",
+  "description": "TypeScript client for the blacktools ExternalServices API",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xligenda/blacktools-sdk.git",
+    "directory": "ts"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepare": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
