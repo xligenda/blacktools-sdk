@@ -90,7 +90,7 @@ type ExpandedConnections struct {
 
 // StaffRoleAssignment is a single sso role assignment held by a moderator.
 type StaffRoleAssignment struct {
-	AssignmentID string `json:"assignment_id"`
+	AssignmentID int64  `json:"assignment_id"`
 	Kind         string `json:"kind"`
 	RoleName     string `json:"role_name"`
 	GrantedBy    string `json:"granted_by"`

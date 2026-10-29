@@ -77,7 +77,7 @@ export interface ExpandedConnections {
 }
 
 export interface StaffRoleAssignment {
-  assignment_id: string;
+  assignment_id: number;
   kind: string;
   role_name: string;
   granted_by: string;
