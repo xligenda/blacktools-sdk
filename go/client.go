@@ -33,7 +33,8 @@ type ClientOptions struct {
 // "server"-type service. CheckPermission and GetProfile apply to both types.
 // ExchangeCode, RefreshToken, GetPosts, GetWarns, RefreshPosts, and
 // RefreshConnections apply only to a "user"-type service. ListModerators,
-// GetModeratorConnections, RefreshModeratorConnections, RefreshModeratorPosts,
+// GetModeratorConnections, RefreshModeratorConnections, GetModeratorPosts,
+// RefreshModeratorPosts,
 // NotifyServer, and NotifyModerator apply only to a "server"-type service.
 // The backend rejects a call from a mismatched service type at runtime.
 type Client struct {
@@ -237,6 +238,21 @@ func (c *Client) RefreshModeratorConnections(
 		return Connections{}, err
 	}
 	return decodeJSON[Connections](data)
+}
+
+// GetModeratorPosts returns every post a moderator of serverIndex holds,
+// across every server (ServerCode "S<index>"), plus global posts (ServerCode "G").
+func (c *Client) GetModeratorPosts(
+	ctx context.Context, serverIndex int, userID string,
+) ([]PostSnapshot, error) {
+	data, err := c.doRequest(
+		ctx, c.gatewayURL, http.MethodGet,
+		moderatorPath(serverIndex, userID, "/posts"), requestOptions{},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return decodeJSON[[]PostSnapshot](data)
 }
 
 // RefreshModeratorPosts forces a fresh role/post sync for a moderator on serverIndex.

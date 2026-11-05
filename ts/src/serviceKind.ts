@@ -14,6 +14,7 @@ type ServerOnlyMethod =
   | 'listModerators'
   | 'getModeratorConnections'
   | 'refreshModeratorConnections'
+  | 'getModeratorPosts'
   | 'refreshModeratorPosts'
   | 'notifyServer'
   | 'notifyModerator'

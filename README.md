@@ -23,7 +23,7 @@ the production deployment:
   `RefreshConnections`) with that user's access token.
 - **`server`**: bound to a single server; lists and manages its moderators
   (`ListModerators`, `GetModeratorConnections`, `RefreshModeratorConnections`,
-  `RefreshModeratorPosts`) and sends notifications (`NotifyServer`,
+  `GetModeratorPosts`, `RefreshModeratorPosts`) and sends notifications (`NotifyServer`,
   `NotifyModerator`) with up to 3 buttons. Payload buttons are delivered to
   the service's webhook (`SetWebhook`/`DeleteWebhook`) as signed events.
 

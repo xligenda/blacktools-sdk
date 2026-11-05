@@ -145,6 +145,15 @@ export class ExternalServiceClientImpl {
     );
   }
 
+  /** returns every post a moderator of serverIndex holds, across every server, plus global posts */
+  async getModeratorPosts(serverIndex: number, userID: string): Promise<PostSnapshot[]> {
+    return this.http.request<PostSnapshot[]>(
+      this.gatewayUrl,
+      'GET',
+      `/sso/servers/${serverIndex}/moderators/${userID}/posts`,
+    );
+  }
+
   /** forces a fresh role/post sync for a moderator on serverIndex */
   async refreshModeratorPosts(serverIndex: number, userID: string): Promise<PostSnapshot[]> {
     return this.http.request<PostSnapshot[]>(
