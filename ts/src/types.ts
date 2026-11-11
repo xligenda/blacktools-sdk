@@ -32,7 +32,7 @@ export interface Profile {
 }
 
 export interface GetProfileOptions {
-  /** Look up a specific user instead of the caller identified by accessToken. */
+  /** look up a specific user (server-type services only, and only a moderator of the bound server) */
   userId?: number;
   /** The end user's own access token, for a self-lookup. */
   accessToken?: string;
@@ -50,6 +50,7 @@ export interface PostSnapshot {
   permission_group: string;
   access_level: number;
   is_temp: boolean;
+  is_moderator: boolean;
   ticket: string;
 }
 
@@ -79,7 +80,7 @@ export interface ExpandedConnections {
 export interface StaffRoleAssignment {
   assignment_id: number;
   kind: string;
-  role_name: string;
+  role_name?: string;
   granted_by: string;
   /** RFC3339. */
   created_at: string;
@@ -89,12 +90,18 @@ export interface Moderator {
   user_id: string;
   sso_user_id: number;
   nickname: string;
+  discord_name?: string;
+  avatar_url?: string;
   tg_id?: number;
   permission_group: string;
   access_level: number;
   is_temp: boolean;
-  active_warnings: number;
-  active_reprimands: number;
+  /** RFC3339. */
+  promoted_at?: string;
+  /** absent when the counts are hidden */
+  active_warnings?: number;
+  /** absent when the counts are hidden */
+  active_reprimands?: number;
   roles: StaffRoleAssignment[];
 }
 
@@ -109,6 +116,7 @@ export interface Connections {
   forum_name?: string;
   forum_view_url?: string;
   google_id?: string;
+  google_email?: string;
 }
 
 /** how a notification Button is rendered */

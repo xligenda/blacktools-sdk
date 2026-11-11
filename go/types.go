@@ -35,7 +35,8 @@ type Profile struct {
 
 // GetProfileOptions configures GetProfile.
 type GetProfileOptions struct {
-	// UserID looks up a specific user instead of the caller identified by AccessToken.
+	// UserID looks up a specific user (server-type services only, and only a
+	// moderator of the bound server).
 	UserID *int64
 	// AccessToken is the end user's own access token, for a self-lookup.
 	AccessToken string
@@ -54,6 +55,7 @@ type PostSnapshot struct {
 	PermissionGroup string `json:"permission_group"`
 	AccessLevel     int    `json:"access_level"`
 	IsTemp          bool   `json:"is_temp"`
+	IsModerator     bool   `json:"is_moderator"`
 	Ticket          string `json:"ticket"`
 }
 
@@ -92,7 +94,7 @@ type ExpandedConnections struct {
 type StaffRoleAssignment struct {
 	AssignmentID int64  `json:"assignment_id"`
 	Kind         string `json:"kind"`
-	RoleName     string `json:"role_name"`
+	RoleName     string `json:"role_name,omitempty"`
 	GrantedBy    string `json:"granted_by"`
 	// CreatedAt is RFC3339.
 	CreatedAt string `json:"created_at"`
@@ -100,15 +102,20 @@ type StaffRoleAssignment struct {
 
 // Moderator is a staff member on a server-type service's bound server.
 type Moderator struct {
-	UserID           string                `json:"user_id"`
-	SSOUserID        int64                 `json:"sso_user_id"`
-	Nickname         string                `json:"nickname"`
-	TgID             *int64                `json:"tg_id,omitempty"`
-	PermissionGroup  string                `json:"permission_group"`
-	AccessLevel      int                   `json:"access_level"`
-	IsTemp           bool                  `json:"is_temp"`
-	ActiveWarnings   int                   `json:"active_warnings"`
-	ActiveReprimands int                   `json:"active_reprimands"`
+	UserID          string  `json:"user_id"`
+	SSOUserID       int64   `json:"sso_user_id"`
+	Nickname        string  `json:"nickname"`
+	DiscordName     *string `json:"discord_name,omitempty"`
+	AvatarURL       *string `json:"avatar_url,omitempty"`
+	TgID            *int64  `json:"tg_id,omitempty"`
+	PermissionGroup string  `json:"permission_group"`
+	AccessLevel     int     `json:"access_level"`
+	IsTemp          bool    `json:"is_temp"`
+	// PromotedAt is RFC3339.
+	PromotedAt *string `json:"promoted_at,omitempty"`
+	// ActiveWarnings and ActiveReprimands are nil when the counts are hidden.
+	ActiveWarnings   *int                  `json:"active_warnings,omitempty"`
+	ActiveReprimands *int                  `json:"active_reprimands,omitempty"`
 	Roles            []StaffRoleAssignment `json:"roles"`
 }
 
@@ -124,6 +131,7 @@ type Connections struct {
 	ForumName    *string `json:"forum_name,omitempty"`
 	ForumViewURL *string `json:"forum_view_url,omitempty"`
 	GoogleID     *string `json:"google_id,omitempty"`
+	GoogleEmail  *string `json:"google_email,omitempty"`
 }
 
 // ButtonStyle is how a notification Button is rendered.

@@ -72,7 +72,7 @@ export class ExternalServiceClientImpl {
     return result.granted;
   }
 
-  /** looks up a user's profile, by userId, by accessToken, or (server-type) neither */
+  /** looks up a user's profile, by accessToken (user-type) or userId (server-type) */
   async getProfile(options: GetProfileOptions = {}): Promise<Profile> {
     const query: Record<string, string> = {};
     if (options.expand) query.expand = 'true';
@@ -95,7 +95,7 @@ export class ExternalServiceClientImpl {
     });
   }
 
-  /** returns the caller's active and revoked warns/reprimands */
+  /** returns the caller's active warns/reprimands */
   async getWarns(accessToken: string): Promise<Warn[]> {
     return this.http.request<Warn[]>(this.gatewayUrl, 'GET', '/sso/warns', { accessToken });
   }
@@ -107,7 +107,7 @@ export class ExternalServiceClientImpl {
     });
   }
 
-  /** forces a fresh service conntion display-name resolution for the caller */
+  /** forces a fresh service connection display-name resolution for the caller */
   async refreshConnections(accessToken: string): Promise<ExpandedConnections> {
     return this.http.request<ExpandedConnections>(
       this.gatewayUrl,
@@ -127,12 +127,22 @@ export class ExternalServiceClientImpl {
     );
   }
 
+  /** returns the first moderator on serverIndex whose Discord id or nickname matches query */
+  async findModerator(serverIndex: number, query: string): Promise<Moderator> {
+    return this.http.request<Moderator>(
+      this.gatewayUrl,
+      'GET',
+      `/sso/servers/${serverIndex}/moderator`,
+      { query: { query } },
+    );
+  }
+
   /** returns a moderator's current linked connections on serverIndex */
   async getModeratorConnections(serverIndex: number, userID: string): Promise<Connections> {
     return this.http.request<Connections>(
       this.gatewayUrl,
       'GET',
-      `/sso/servers/${serverIndex}/moderators/${userID}/connections`,
+      `/sso/servers/${serverIndex}/moderators/${encodeURIComponent(userID)}/connections`,
     );
   }
 
@@ -141,7 +151,7 @@ export class ExternalServiceClientImpl {
     return this.http.request<Connections>(
       this.gatewayUrl,
       'POST',
-      `/sso/servers/${serverIndex}/moderators/${userID}/connections/refresh`,
+      `/sso/servers/${serverIndex}/moderators/${encodeURIComponent(userID)}/connections/refresh`,
     );
   }
 
@@ -150,7 +160,7 @@ export class ExternalServiceClientImpl {
     return this.http.request<PostSnapshot[]>(
       this.gatewayUrl,
       'GET',
-      `/sso/servers/${serverIndex}/moderators/${userID}/posts`,
+      `/sso/servers/${serverIndex}/moderators/${encodeURIComponent(userID)}/posts`,
     );
   }
 
@@ -159,7 +169,7 @@ export class ExternalServiceClientImpl {
     return this.http.request<PostSnapshot[]>(
       this.gatewayUrl,
       'POST',
-      `/sso/servers/${serverIndex}/moderators/${userID}/posts/refresh`,
+      `/sso/servers/${serverIndex}/moderators/${encodeURIComponent(userID)}/posts/refresh`,
     );
   }
 
@@ -176,7 +186,7 @@ export class ExternalServiceClientImpl {
     );
   }
 
-  /** notifies single moderator on serverIndex */
+  /** notifies a single moderator on serverIndex */
   async notifyModerator(
     serverIndex: number,
     userID: string,
@@ -185,7 +195,7 @@ export class ExternalServiceClientImpl {
     return this.http.request<NotifyModeratorResult>(
       this.gatewayUrl,
       'POST',
-      `/sso/servers/${serverIndex}/moderators/${userID}/notify`,
+      `/sso/servers/${serverIndex}/moderators/${encodeURIComponent(userID)}/notify`,
       notifyOptions(notification),
     );
   }

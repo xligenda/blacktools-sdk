@@ -30,7 +30,6 @@ export class ExternalServiceApiError extends Error {
     this.rateLimitRemaining = rateLimit?.rateLimitRemaining;
   }
 
-  /** True when the server responded 429 Too Many Requests. */
   get isRateLimited(): boolean {
     return this.status === 429;
   }
