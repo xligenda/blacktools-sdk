@@ -8,8 +8,9 @@ third-party integration reaches with a service bearer token
 |------------|---------------|-----------------------------------------------------------|
 | Go         | [`go/`](go/)  | `go get github.com/xligenda/blacktools-sdk/go`            |
 | TypeScript | [`ts/`](ts/)  | `pnpm add 'github:xligenda/blacktools-sdk#main&path:/ts'` |
+| Python     | [`python/`](python/) | `pip install "blacktools-sdk @ git+https://github.com/xligenda/blacktools-sdk#subdirectory=python"` |
 
-Both clients expose the same methods, routes and JSON shapes, and default to
+All three clients expose the same methods, routes and JSON shapes, and default to
 the production deployment:
 
 - API: `https://blacktools.odsmod.su/api`
@@ -22,7 +23,7 @@ the production deployment:
   user-scoped routes (`GetPosts`, `GetWarns`, `RefreshPosts`,
   `RefreshConnections`) with that user's access token.
 - **`server`**: bound to a single server; lists and manages its moderators
-  (`ListModerators`, `GetModeratorConnections`, `RefreshModeratorConnections`,
+  (`ListModerators`, `FindModerator`, `GetModeratorConnections`, `RefreshModeratorConnections`,
   `GetModeratorPosts`, `RefreshModeratorPosts`) and sends notifications (`NotifyServer`,
   `NotifyModerator`) with up to 3 buttons. Payload buttons are delivered to
   the service's webhook (`SetWebhook`/`DeleteWebhook`) as signed events.
