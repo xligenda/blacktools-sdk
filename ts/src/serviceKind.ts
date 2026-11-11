@@ -12,6 +12,7 @@ type UserOnlyMethod =
   | 'refreshConnections';
 type ServerOnlyMethod =
   | 'listModerators'
+  | 'findModerator'
   | 'getModeratorConnections'
   | 'refreshModeratorConnections'
   | 'getModeratorPosts'

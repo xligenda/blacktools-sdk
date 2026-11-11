@@ -7,6 +7,7 @@ package sdk
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 )
@@ -97,8 +98,8 @@ func (c *Client) CheckPermission(
 	return result.Granted, nil
 }
 
-// GetProfile looks up a user's profile, by opts.UserID, by opts.AccessToken, or
-// (server-type) neither.
+// GetProfile looks up a user's profile, by opts.AccessToken (user-type) or
+// opts.UserID (server-type).
 func (c *Client) GetProfile(ctx context.Context, opts GetProfileOptions) (Profile, error) {
 	const trueValue = "true"
 	query := map[string]string{}
@@ -139,7 +140,7 @@ func (c *Client) GetPosts(ctx context.Context, accessToken string) ([]PostSnapsh
 	return decodeJSON[[]PostSnapshot](data)
 }
 
-// GetWarns returns the caller's active and revoked warns/reprimands.
+// GetWarns returns the caller's active warns/reprimands.
 func (c *Client) GetWarns(ctx context.Context, accessToken string) ([]Warn, error) {
 	data, err := c.doRequest(ctx, c.gatewayURL, http.MethodGet, "/sso/warns", requestOptions{
 		accessToken: accessToken,
@@ -207,6 +208,22 @@ func (c *Client) ListModerators(
 		return nil, err
 	}
 	return decodeJSON[[]Moderator](data)
+}
+
+// FindModerator returns the first moderator on serverIndex whose Discord id
+// or nickname matches query.
+func (c *Client) FindModerator(
+	ctx context.Context, serverIndex int, query string,
+) (Moderator, error) {
+	data, err := c.doRequest(
+		ctx, c.gatewayURL, http.MethodGet,
+		"/sso/servers/"+strconv.Itoa(serverIndex)+"/moderator",
+		requestOptions{query: map[string]string{"query": query}},
+	)
+	if err != nil {
+		return Moderator{}, err
+	}
+	return decodeJSON[Moderator](data)
 }
 
 // GetModeratorConnections returns a moderator's current linked connections on serverIndex.
@@ -303,10 +320,10 @@ func (c *Client) NotifyModerator(
 // SetWebhook sets the https URL that receives a signed WebhookEvent whenever
 // a recipient runs one of this service's Payload buttons. Every call issues a
 // new signing secret, invalidating the previous one.
-func (c *Client) SetWebhook(ctx context.Context, url string) (WebhookConfig, error) {
+func (c *Client) SetWebhook(ctx context.Context, webhookURL string) (WebhookConfig, error) {
 	data, err := c.doRequest(
 		ctx, c.gatewayURL, http.MethodPut, "/sso/webhook",
-		requestOptions{body: map[string]string{"url": url}},
+		requestOptions{body: map[string]string{"url": webhookURL}},
 	)
 	if err != nil {
 		return WebhookConfig{}, err
@@ -322,7 +339,8 @@ func (c *Client) DeleteWebhook(ctx context.Context) error {
 }
 
 func moderatorPath(serverIndex int, userID, suffix string) string {
-	return "/sso/servers/" + strconv.Itoa(serverIndex) + "/moderators/" + userID + suffix
+	return "/sso/servers/" + strconv.Itoa(serverIndex) + "/moderators/" +
+		url.PathEscape(userID) + suffix
 }
 
 // orDefault returns value, or fallback when value is empty.
