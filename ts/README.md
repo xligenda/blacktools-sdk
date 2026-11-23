@@ -56,6 +56,7 @@ const client = new ExternalServiceClient<'user'>(opts);
 
 const tokens = await client.exchangeCode(code);
 const posts = await client.getPosts(tokens.access_token);
+const history = await client.getPostHistory(tokens.access_token, 'moderator'); // or 'other'
 const warns = await client.getWarns(tokens.access_token);
 
 // later, once access_token expires:
@@ -70,6 +71,7 @@ client.listModerators(1); // compile error: not a member of ExternalServiceClien
 const client = new ExternalServiceClient<'server'>(opts);
 
 const moderators = await client.listModerators(serverIndex);
+const history = await client.getUserPostHistory(serverIndex, moderators[0].user_id, 'moderator');
 
 await client.notifyModerator(serverIndex, moderators[0].user_id, {
   kind: 'reminder', // the backend namespaces this itself before delivery

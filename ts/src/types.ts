@@ -54,6 +54,60 @@ export interface PostSnapshot {
   ticket: string;
 }
 
+/** Which posts a post history covers: Discord moderator posts, or every other post. */
+export type PostHistoryKind = 'moderator' | 'other';
+
+/** A user's posts of one kind, active ones first, then discharged ones newest first. */
+export interface PostHistory {
+  /** RFC3339: changes before it are reconstructed from post dates (`backfilled`). */
+  tracked_since?: string;
+  posts: PostHistoryPost[];
+}
+
+export interface PostHistoryPost {
+  server_code: string;
+  server_name: string;
+  permission_group: string;
+  access_level: number;
+  is_moderator: boolean;
+  is_temp: boolean;
+  ticket: string;
+  /** RFC3339. */
+  assigned_at: string;
+  /** RFC3339, absent while the post is active. */
+  discharged_at?: string;
+  /** The post's changes, newest first. */
+  events: PostHistoryEvent[];
+}
+
+export type PostHistoryEventKind =
+  | 'assigned'
+  | 'promoted'
+  | 'demoted'
+  | 'regrouped'
+  | 'discharged'
+  | 'temp_on'
+  | 'temp_off'
+  | 'changed';
+
+export interface PostHistoryEvent {
+  kind: PostHistoryEventKind;
+  permission_group?: string;
+  access_level?: number;
+  prev_permission_group?: string;
+  prev_access_level?: number;
+  /** Who toggled ВРИО, set only on temp_on/temp_off. */
+  actor?: PostHistoryActor;
+  /** RFC3339. */
+  occurred_at: string;
+  backfilled: boolean;
+}
+
+export interface PostHistoryActor {
+  discord_id: string;
+  name?: string;
+}
+
 export type WarnKind = 'warning' | 'reprimand';
 
 export interface Warn {

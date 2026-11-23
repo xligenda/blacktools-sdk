@@ -130,6 +130,24 @@ class RequestShapeTest(unittest.TestCase):
                 self.assertEqual(rec.last.url, base + "/moderators/123" + suffix)
                 self.assertNotIn("X-Access-Token", rec.last.headers)
 
+    def test_post_history_routes(self) -> None:
+        rec = Recorder(body={"posts": []})
+        c = client(rec)
+        for kind in ("moderator", "other"):
+            with self.subTest(kind=kind):
+                self.assertEqual(c.get_post_history("tok", kind), {"posts": []})
+                self.assertEqual(rec.last.method, "GET")
+                self.assertEqual(rec.last.url, "https://gw.example/sso/posts/history/" + kind)
+                self.assertEqual(rec.last.headers["X-Access-Token"], "tok")
+
+                c.get_user_post_history(3, "1/2", kind)
+                self.assertEqual(rec.last.method, "GET")
+                self.assertEqual(
+                    rec.last.url,
+                    "https://gw.example/sso/servers/3/users/1%2F2/posts/history/" + kind,
+                )
+                self.assertNotIn("X-Access-Token", rec.last.headers)
+
     def test_user_id_is_path_escaped(self) -> None:
         rec = Recorder(body={"discord_id": "x"})
         client(rec).get_moderator_connections(3, "../../webhook?x=1")
