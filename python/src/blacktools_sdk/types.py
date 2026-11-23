@@ -45,6 +45,60 @@ class PostSnapshot(TypedDict):
     ticket: str
 
 
+PostHistoryKind = Literal["moderator", "other"]
+"""Which posts a post history covers: Discord moderator posts, or every other post."""
+
+PostHistoryEventKind = Literal[
+    "assigned", "promoted", "demoted", "regrouped", "discharged", "temp_on", "temp_off", "changed"
+]
+
+
+class _PostHistoryActorRequired(TypedDict):
+    discord_id: str
+
+
+class PostHistoryActor(_PostHistoryActorRequired, total=False):
+    name: str
+
+
+class _PostHistoryEventRequired(TypedDict):
+    kind: PostHistoryEventKind
+    occurred_at: str  # RFC3339
+    backfilled: bool
+
+
+class PostHistoryEvent(_PostHistoryEventRequired, total=False):
+    permission_group: str
+    access_level: int
+    prev_permission_group: str
+    prev_access_level: int
+    actor: PostHistoryActor  # who toggled ВРИО, only on temp_on/temp_off
+
+
+class _PostHistoryPostRequired(TypedDict):
+    server_code: str  # "S<index>" for a server post, "G" for a global
+    server_name: str
+    permission_group: str
+    access_level: int
+    is_moderator: bool
+    is_temp: bool
+    ticket: str
+    assigned_at: str  # RFC3339
+    events: list[PostHistoryEvent]  # newest first
+
+
+class PostHistoryPost(_PostHistoryPostRequired, total=False):
+    discharged_at: str  # RFC3339, absent while the post is active
+
+
+class _PostHistoryRequired(TypedDict):
+    posts: list[PostHistoryPost]  # active first, then discharged ones newest first
+
+
+class PostHistory(_PostHistoryRequired, total=False):
+    tracked_since: str  # RFC3339, changes before it are reconstructed (backfilled)
+
+
 WarnKind = Literal["warning", "reprimand"]
 
 

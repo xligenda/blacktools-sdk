@@ -12,6 +12,8 @@ from .types import (
     NotifyModeratorResult,
     NotifyRequest,
     NotifyServerResult,
+    PostHistory,
+    PostHistoryKind,
     PostSnapshot,
     Profile,
     TokenPair,
@@ -61,6 +63,9 @@ class Client(BaseClient):
     def get_posts(self, access_token: str) -> list[PostSnapshot]:
         return self._call(_core.get_posts(access_token))
 
+    def get_post_history(self, access_token: str, kind: PostHistoryKind) -> PostHistory:
+        return self._call(_core.get_post_history(access_token, kind))
+
     def get_warns(self, access_token: str) -> list[Warn]:
         return self._call(_core.get_warns(access_token))
 
@@ -84,6 +89,11 @@ class Client(BaseClient):
 
     def get_moderator_posts(self, server_index: int, user_id: str) -> list[PostSnapshot]:
         return self._call(_core.get_moderator_posts(server_index, user_id))
+
+    def get_user_post_history(
+        self, server_index: int, user_id: str, kind: PostHistoryKind
+    ) -> PostHistory:
+        return self._call(_core.get_user_post_history(server_index, user_id, kind))
 
     def refresh_moderator_posts(self, server_index: int, user_id: str) -> list[PostSnapshot]:
         return self._call(_core.refresh_moderator_posts(server_index, user_id))
@@ -142,6 +152,9 @@ class AsyncClient(BaseClient):
     async def get_posts(self, access_token: str) -> list[PostSnapshot]:
         return await self._call(_core.get_posts(access_token))
 
+    async def get_post_history(self, access_token: str, kind: PostHistoryKind) -> PostHistory:
+        return await self._call(_core.get_post_history(access_token, kind))
+
     async def get_warns(self, access_token: str) -> list[Warn]:
         return await self._call(_core.get_warns(access_token))
 
@@ -165,6 +178,11 @@ class AsyncClient(BaseClient):
 
     async def get_moderator_posts(self, server_index: int, user_id: str) -> list[PostSnapshot]:
         return await self._call(_core.get_moderator_posts(server_index, user_id))
+
+    async def get_user_post_history(
+        self, server_index: int, user_id: str, kind: PostHistoryKind
+    ) -> PostHistory:
+        return await self._call(_core.get_user_post_history(server_index, user_id, kind))
 
     async def refresh_moderator_posts(self, server_index: int, user_id: str) -> list[PostSnapshot]:
         return await self._call(_core.refresh_moderator_posts(server_index, user_id))

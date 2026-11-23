@@ -7,6 +7,7 @@ type UserOnlyMethod =
   | 'exchangeCode'
   | 'refreshToken'
   | 'getPosts'
+  | 'getPostHistory'
   | 'getWarns'
   | 'refreshPosts'
   | 'refreshConnections';
@@ -16,6 +17,7 @@ type ServerOnlyMethod =
   | 'getModeratorConnections'
   | 'refreshModeratorConnections'
   | 'getModeratorPosts'
+  | 'getUserPostHistory'
   | 'refreshModeratorPosts'
   | 'notifyServer'
   | 'notifyModerator'

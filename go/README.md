@@ -42,6 +42,7 @@ the doc comment on `Client` for which methods apply to which `type`.
 ```go
 tokens, err := client.ExchangeCode(ctx, code)
 posts, err := client.GetPosts(ctx, tokens.AccessToken)
+history, err := client.GetPostHistory(ctx, tokens.AccessToken, sdk.PostHistoryModerator)
 warns, err := client.GetWarns(ctx, tokens.AccessToken)
 
 // later, once AccessToken expires:
@@ -52,6 +53,7 @@ refreshed, err := client.RefreshToken(ctx, tokens.RefreshToken)
 
 ```go
 moderators, err := client.ListModerators(ctx, serverIndex, "")
+history, err := client.GetUserPostHistory(ctx, serverIndex, moderators[0].UserID, sdk.PostHistoryModerator)
 
 _, err = client.NotifyModerator(ctx, serverIndex, moderators[0].UserID, sdk.NotifyRequest{
     Kind:  "reminder", // the backend namespaces this itself before delivery

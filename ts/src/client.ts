@@ -9,6 +9,8 @@ import type {
   NotifyModeratorResult,
   NotifyServerResult,
   PermsCheckResult,
+  PostHistory,
+  PostHistoryKind,
   PostSnapshot,
   Profile,
   TokenPair,
@@ -95,6 +97,19 @@ export class ExternalServiceClientImpl {
     });
   }
 
+  /**
+   * returns the caller's posts of kind, active and discharged, across every server,
+   * plus global posts for 'other', each with its changes newest first
+   */
+  async getPostHistory(accessToken: string, kind: PostHistoryKind): Promise<PostHistory> {
+    return this.http.request<PostHistory>(
+      this.gatewayUrl,
+      'GET',
+      `/sso/posts/history/${encodeURIComponent(kind)}`,
+      { accessToken },
+    );
+  }
+
   /** returns the caller's active warns/reprimands */
   async getWarns(accessToken: string): Promise<Warn[]> {
     return this.http.request<Warn[]>(this.gatewayUrl, 'GET', '/sso/warns', { accessToken });
@@ -161,6 +176,22 @@ export class ExternalServiceClientImpl {
       this.gatewayUrl,
       'GET',
       `/sso/servers/${serverIndex}/moderators/${encodeURIComponent(userID)}/posts`,
+    );
+  }
+
+  /**
+   * returns the posts of kind userID held on serverIndex, active and discharged, each
+   * with its changes newest first; a 404 unless the user holds an active post of kind there
+   */
+  async getUserPostHistory(
+    serverIndex: number,
+    userID: string,
+    kind: PostHistoryKind,
+  ): Promise<PostHistory> {
+    return this.http.request<PostHistory>(
+      this.gatewayUrl,
+      'GET',
+      `/sso/servers/${serverIndex}/users/${encodeURIComponent(userID)}/posts/history/${encodeURIComponent(kind)}`,
     );
   }
 

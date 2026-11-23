@@ -18,6 +18,8 @@ from .types import (
     NotifyModeratorResult,
     NotifyRequest,
     NotifyServerResult,
+    PostHistory,
+    PostHistoryKind,
     PostSnapshot,
     Profile,
     TokenPair,
@@ -113,6 +115,10 @@ def get_posts(token: str) -> Call[list[PostSnapshot]]:
     return user_route("GET", "/sso/posts", _json, token)
 
 
+def get_post_history(token: str, kind: PostHistoryKind) -> Call[PostHistory]:
+    return user_route("GET", f"/sso/posts/history/{quote(kind, safe='')}", _json, token)
+
+
 def get_warns(token: str) -> Call[list[Warn]]:
     return user_route("GET", "/sso/warns", _json, token)
 
@@ -158,6 +164,13 @@ def refresh_moderator_connections(server_index: int, user_id: str) -> Call[Conne
 def get_moderator_posts(server_index: int, user_id: str) -> Call[list[PostSnapshot]]:
     path = _moderator_path(server_index, user_id, "/posts")
     return Call("gateway", "GET", path, _json)
+
+
+def get_user_post_history(
+    server_index: int, user_id: str, kind: PostHistoryKind
+) -> Call[PostHistory]:
+    suffix = f"/users/{quote(user_id, safe='')}/posts/history/{quote(kind, safe='')}"
+    return Call("gateway", "GET", _server_path(server_index, suffix), _json)
 
 
 def refresh_moderator_posts(server_index: int, user_id: str) -> Call[list[PostSnapshot]]:

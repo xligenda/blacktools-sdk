@@ -52,6 +52,7 @@ Optional fields are absent rather than `None`, so read them with `.get()`.
 ```python
 tokens = client.exchange_code(code)
 posts = client.get_posts(tokens["access_token"])
+history = client.get_post_history(tokens["access_token"], "moderator")  # or "other"
 warns = client.get_warns(tokens["access_token"])  # active ones only
 
 # later, once the access token expires (tokens["expires_at"], Unix seconds):
@@ -63,6 +64,7 @@ tokens = client.refresh_token(tokens["refresh_token"])
 ```python
 moderators = client.list_moderators(server_index)  # or (server_index, "nick")
 moderator = client.find_moderator(server_index, "123456789")  # first match, 404 if none
+history = client.get_user_post_history(server_index, moderator["user_id"], "moderator")
 
 client.notify_moderator(
     server_index,

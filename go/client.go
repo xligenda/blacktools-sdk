@@ -32,10 +32,10 @@ type ClientOptions struct {
 
 // Client calls the ExternalServices API as either a "user"-type or
 // "server"-type service. CheckPermission and GetProfile apply to both types.
-// ExchangeCode, RefreshToken, GetPosts, GetWarns, RefreshPosts, and
-// RefreshConnections apply only to a "user"-type service. ListModerators,
+// ExchangeCode, RefreshToken, GetPosts, GetPostHistory, GetWarns, RefreshPosts,
+// and RefreshConnections apply only to a "user"-type service. ListModerators,
 // GetModeratorConnections, RefreshModeratorConnections, GetModeratorPosts,
-// RefreshModeratorPosts,
+// GetUserPostHistory, RefreshModeratorPosts,
 // NotifyServer, and NotifyModerator apply only to a "server"-type service.
 // The backend rejects a call from a mismatched service type at runtime.
 type Client struct {
@@ -138,6 +138,22 @@ func (c *Client) GetPosts(ctx context.Context, accessToken string) ([]PostSnapsh
 		return nil, err
 	}
 	return decodeJSON[[]PostSnapshot](data)
+}
+
+// GetPostHistory returns the caller's posts of kind, active and discharged,
+// across every server (ServerCode "S<index>"), plus global posts (ServerCode "G")
+// for PostHistoryOther, each with its changes newest first.
+func (c *Client) GetPostHistory(
+	ctx context.Context, accessToken string, kind PostHistoryKind,
+) (PostHistory, error) {
+	data, err := c.doRequest(
+		ctx, c.gatewayURL, http.MethodGet, "/sso/posts/history/"+url.PathEscape(string(kind)),
+		requestOptions{accessToken: accessToken},
+	)
+	if err != nil {
+		return PostHistory{}, err
+	}
+	return decodeJSON[PostHistory](data)
 }
 
 // GetWarns returns the caller's active warns/reprimands.
@@ -270,6 +286,21 @@ func (c *Client) GetModeratorPosts(
 		return nil, err
 	}
 	return decodeJSON[[]PostSnapshot](data)
+}
+
+// GetUserPostHistory returns the posts of kind userID held on serverIndex,
+// active and discharged, each with its changes newest first. It requires the
+// user to hold an active post of kind there (a 404 *APIError otherwise).
+func (c *Client) GetUserPostHistory(
+	ctx context.Context, serverIndex int, userID string, kind PostHistoryKind,
+) (PostHistory, error) {
+	path := "/sso/servers/" + strconv.Itoa(serverIndex) + "/users/" + url.PathEscape(userID) +
+		"/posts/history/" + url.PathEscape(string(kind))
+	data, err := c.doRequest(ctx, c.gatewayURL, http.MethodGet, path, requestOptions{})
+	if err != nil {
+		return PostHistory{}, err
+	}
+	return decodeJSON[PostHistory](data)
 }
 
 // RefreshModeratorPosts forces a fresh role/post sync for a moderator on serverIndex.

@@ -59,6 +59,76 @@ type PostSnapshot struct {
 	Ticket          string `json:"ticket"`
 }
 
+// PostHistoryKind selects which posts a post history covers.
+type PostHistoryKind string
+
+const (
+	// PostHistoryModerator covers Discord moderator posts.
+	PostHistoryModerator PostHistoryKind = "moderator"
+	// PostHistoryOther covers every other post, global ones included.
+	PostHistoryOther PostHistoryKind = "other"
+)
+
+// PostHistory is a user's posts of one kind, active ones first, then
+// discharged ones by discharge date, newest first.
+type PostHistory struct {
+	// TrackedSince is RFC3339: changes before it are reconstructed from post
+	// dates (their events have Backfilled set).
+	TrackedSince *string           `json:"tracked_since,omitempty"`
+	Posts        []PostHistoryPost `json:"posts"`
+}
+
+// PostHistoryPost is one post, active or discharged, with its changes.
+type PostHistoryPost struct {
+	ServerCode      string `json:"server_code"`
+	ServerName      string `json:"server_name"`
+	PermissionGroup string `json:"permission_group"`
+	AccessLevel     int    `json:"access_level"`
+	IsModerator     bool   `json:"is_moderator"`
+	IsTemp          bool   `json:"is_temp"`
+	Ticket          string `json:"ticket"`
+	// AssignedAt is RFC3339.
+	AssignedAt string `json:"assigned_at"`
+	// DischargedAt is RFC3339, unset while the post is active.
+	DischargedAt *string `json:"discharged_at,omitempty"`
+	// Events lists the post's changes, newest first.
+	Events []PostHistoryEvent `json:"events"`
+}
+
+// PostHistoryEventKind names a change of a post.
+type PostHistoryEventKind string
+
+const (
+	PostEventAssigned   PostHistoryEventKind = "assigned"
+	PostEventPromoted   PostHistoryEventKind = "promoted"
+	PostEventDemoted    PostHistoryEventKind = "demoted"
+	PostEventRegrouped  PostHistoryEventKind = "regrouped"
+	PostEventDischarged PostHistoryEventKind = "discharged"
+	PostEventTempOn     PostHistoryEventKind = "temp_on"
+	PostEventTempOff    PostHistoryEventKind = "temp_off"
+	PostEventChanged    PostHistoryEventKind = "changed"
+)
+
+// PostHistoryEvent is one change of a post.
+type PostHistoryEvent struct {
+	Kind                PostHistoryEventKind `json:"kind"`
+	PermissionGroup     *string              `json:"permission_group,omitempty"`
+	AccessLevel         *int                 `json:"access_level,omitempty"`
+	PrevPermissionGroup *string              `json:"prev_permission_group,omitempty"`
+	PrevAccessLevel     *int                 `json:"prev_access_level,omitempty"`
+	// Actor is who toggled ВРИО, set only on temp_on/temp_off.
+	Actor *PostHistoryActor `json:"actor,omitempty"`
+	// OccurredAt is RFC3339.
+	OccurredAt string `json:"occurred_at"`
+	Backfilled bool   `json:"backfilled"`
+}
+
+// PostHistoryActor is the staff member behind a post change.
+type PostHistoryActor struct {
+	DiscordID string  `json:"discord_id"`
+	Name      *string `json:"name,omitempty"`
+}
+
 // WarnKind distinguishes a warning from a reprimand.
 type WarnKind string
 
